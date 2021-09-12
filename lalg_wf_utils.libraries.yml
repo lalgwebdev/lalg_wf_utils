@@ -1,0 +1,5 @@
+lalg_wf_js:
+  js:
+    js/lalg_webform.js: {}
+  dependencies:
+    - core/jquery

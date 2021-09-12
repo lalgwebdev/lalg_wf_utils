@@ -1,0 +1,279 @@
+<?php
+
+// //********************************************************************
+// // Custom Webform Validation Rules
+// //********************************************************************
+
+// /**
+ // * Implements hook_webform_validation_validators().
+ // */
+// function lalg_wf_utils_webform_validation_validators() {
+  // return array(
+    // 'all_or_none' => array(
+      // 'name' => "LALG All or None",
+      // 'description' => "Checks all or none of the specified fields have content.",
+      // 'component_types' => array(
+        // 'textfield', 'email',
+      // ),
+    // ),
+	// 'lalg_email_dependencies' => array(
+      // 'name' => "LALG Email Dependencies",
+      // 'description' => "Checks dependencies on Email field. Select Membership Type, Last Name and Email",
+      // 'component_types' => array(
+        // 'textfield', 'email', 'select',
+      // ),	 
+	// ),
+	// 'lalg_unique_or_empty' => array(
+	  // 'name' => 'LALG Unique or Empty',
+	  // 'description' => 'Selected fields cannot be duplicates, unless they are empty.  Case insensitive.',
+      // 'component_types' => array(
+        // 'textfield', 'email', 
+      // ),
+	// )
+  // );
+// }
+
+// /**
+ // * Implements hook_webform_validation_validate().
+ // */
+// function lalg_wf_utils_webform_validation_validate($validator_name, $items, $components, $rule) {
+  // if ($items) {
+    // switch ($validator_name) {
+		
+// // ****************  All or None Validator  ***********************		
+      // case 'all_or_none':
+// // dpm($items);	  
+        // $errors = array();
+        // foreach ($items as $key => $val) {
+			// $items[$key] = (bool) strlen($items[$key]);
+        // }
+		// $number_completed = count(array_filter($items));
+		// if ($number_completed > 0 && $number_completed < count($items) ) {
+			// // Generate Error Message(s)
+			// if (count($items) == 2) {
+				// $err_message = 'You must complete both or neither of the First/Last Name';
+			// }
+			// else {
+				// $err_message = 'You must complete all or none of the First/Last Name and Email Address';
+			// }
+			// reset($items);
+			// $errors[key($items)] = $err_message;
+		// }
+        // return $errors;
+        // break;
+		
+// // *********************  Email Dependencies Validator  **************************
+// /* Implements a custom validation rule.
+ // * Requires the following fields selected:  Email, Last Name of same Contact, Send Membership Documents, ditto,
+ // *   and Membership Type Required.
+ // * Error if Email and no Last Name, or Plain Membership and no Email.
+ // */
+	  // case 'lalg_email_dependencies':
+	  
+// // dpm($items);
+// // dpm($components);		
+        // $errors = array();
+		// foreach ($items as $key => $val) {
+			// // Identify the fields of interest
+			// $formKey = $components[$key]['form_key'];
+			// if (endsWith($formKey, 'email')) {$email = $key;} 
+			// if (endsWith($formKey, 'name')) {$name = $key;}
+			// if (endsWith($formKey, 'membership_type_id')) {$membId = $key;}
+		// }	
+
+ // // dpm('Email: ' . $email . 'Value: ' . $items[$email]);
+  
+		// if ($items[$email] && !$items[$name]) {
+			// // Email set but no Name
+			// $errors[$name] = 'Name is mandatory if Email field is set';
+		// }
+		// // if (!$items[$email] && $items[$name])  {
+			// // // Email field empty - check other dependencies	
+			// // if ($items[$membId] == '7') {
+				// // $errors[$email] = 'Membership without a Printed Newsletter requires an Email address';
+			// // }			
+		// // }
+
+		// // Return any errors		
+        // return $errors; 
+		// break;
+		
+	  // // ****************  Unique or Empty Validator  ***********************		
+      // case 'lalg_unique_or_empty':
+
+        // $errors = array();
+  
+		// // Count how many times each value appears, and find out which
+		// // values appear more than once.
+		// $items_count = array_count_values(array_map('drupal_strtolower', array_map('trim', $items)));
+        // $doubles = array_filter($items_count, function ($x) {
+          // return $x > 1;
+        // });
+        // foreach ($items as $key => $val) {
+          // if (isset($val) && !empty($val) && in_array(drupal_strtolower($val), array_keys($doubles))) {
+            // $errors[$key] = t('%item address %value must not be duplicated.', array('%item' => $components[$key]['name'], '%value' => $val));
+          // }
+        // }
+
+        // return $errors;
+        // break;
+    // }
+  // }
+// }
+
+// function endsWith($haystack, $needle)
+// {
+    // $length = strlen($needle);
+    // if ($length == 0) {
+        // return true;
+    // }
+    // return (substr($haystack, -$length) === $needle);
+// }
+
+//********************************************************************
+// Changes to Webforms - in addition to the standard configuration stuff
+//********************************************************************
+/**
+ * Implements hook_form_alter().
+ *   Various Functions
+ */
+function lalg_wf_utils_form_webform_client_form_alter(&$form, &$form_state, $form_id) {
+//dpm($form_id);
+	// Exit unless Page is UserDetails or AdminDetails
+	if (($form['#webform_id'] !== 'administer_contact_details') && 
+	    ($form['#webform_id'] !== 'user_contact_details')) {
+		return;
+	}
+	
+	// Install Kint diagnostics library 
+	require 'kint.phar';
+//+d($form);
+
+//************  Attach Javascript to Webforms for behaviour tweaks. ************
+    $form['#attached']['library'][] = 'lalg_wf_utils/lalg_wf_js';
+return; 
+  
+//************  Add Membership Price Information  *****************
+  if ($form['progressbar']['#page_num'] == '1') {	
+// dpm($form);
+	// Find the Price Details
+	$prices = lalg_get_price_data();
+	// Add to form
+	if (isset($form['submitted']['membership_details']['#description'])) {
+	  $form['submitted']['membership_details']['#description'] .= $prices;
+	}
+  }
+  
+//********************* Copy Postcode if HH not set yet *************************
+// Usability, if User has registered with Postcode it then shows on Webform.
+  if ($form['progressbar']['#page_num'] == '1' && $form_id == 'webform_client_form_8017')  {	
+//  dpm($form);
+//  dpm($form_id);
+	// Get current Contact Id
+	$cid = CRM_Core_Session::singleton()->getLoggedInContactID();
+//	dpm($cid);
+	// Get their Postcode
+	$result = civicrm_api3('Contact', 'get', [
+	  'sequential' => 1,
+	  'return' => ["postal_code"],
+	  'id' => $cid,
+	]);
+	$postcode = $result['values'][0]['postal_code'];
+//	dpm($postcode);
+	// Set default value for HH Postcode
+	$form['submitted']['civicrm_2_contact_1_fieldset_fieldset']['civicrm_2_contact_1_address_postal_code']['#default_value'] = $postcode;
+  }
+  
+//********************  Add Test version of the Payment Processor for WatirUser (etc.) *******************//
+//  Allows regression tests on live system without reconfiguration.
+
+	$uname = strtolower($GLOBALS['user']->name);
+	if ($uname == 'watiruser' || $uname == 'watir' || $uname == 'tony') {
+		
+// +d($form);
+
+		if (isset($form['submitted']['civicrm_1_contribution_1_contribution_payment_processor_id'])) {		
+		// Admin form where there are multiple PP options
+			$ppid =& $form['submitted']['civicrm_1_contribution_1_contribution_payment_processor_id'];
+			//Add the Stripe Test PP as additional option.
+			if (!isset($ppid['#options'][10])) {
+				$ppid['#options'][10] = 'STRIPE Test';
+			}
+			if (strpos($ppid['#webform_component']['extra']['items'], '9|') === false) {
+				$ppid['#webform_component']['extra']['items'] = $ppid['#webform_component']['extra']['items'] . ' 10|STRIPE Test';
+			}	
+		}
+
+		// User form where there is only a single PP
+		if (strpos($uri, '/userdetails') !== false) {
+			$ppid = (int)$form['#node']->webform_civicrm['data']['contribution'][1]['contribution'][1]['payment_processor_id'];			
+			if ($ppid > 0) {
+				// If Id is odd then it is the Live version, so add one to get to test version
+				if ($ppid % 2 != 0) {
+					$form['#node']->webform_civicrm['data']['contribution'][1]['contribution'][1]['payment_processor_id'] = (string)($ppid + 1);
+					$form['progressbar']['#node']->webform_civicrm['data']['contribution'][1]['contribution'][1]['payment_processor_id'] = (string)($ppid + 1);
+				}
+			}
+		}
+// +d($form);		
+	}
+ 
+}
+
+// ****************** Helper Routine ********************
+// Extracts and formats the help text containing Membership types and prices
+function lalg_get_price_data() {
+//dpm('Get Price Data');
+  // Check for cached copy
+  $prices = &drupal_static(__FUNCTION__);
+  if (!isset($prices)) {
+    if ($cache = cache_get('lalg_membership_prices')) {
+	$prices = $cache->data;
+    }
+    else {
+		// Do the hard work, and populate $prices
+		// Get all Active Membership Types
+		$result = civicrm_api3('MembershipType', 'get', [
+		  'sequential' => 1,
+		  'is_active' => 1,
+		]);
+//dpm($result);
+
+		// Build the Help Text
+		$prices = '</br>Membership Prices: </br>'; 
+		foreach ($result['values'] as $value) {
+//			dpm($value);
+			// Exclude OTM, now that it is discontinued
+			if ( strpos($value['name'], 'Online') === false ) {
+				$prices .= '&nbsp;&nbsp;&nbsp;' . $value['name'] . ' -- £';
+				$prices .= number_format((float)$value['minimum_fee'], 2);
+			}	
+		}
+      // Save back in the cache
+      cache_set('lalg_membership_prices', $prices, 'cache', time() + 7200);		// Actually will be cleared when cron runs - max life two hours
+    }
+  }
+  return $prices;
+}
+
+
+//********************************************************************
+// Post Processing for Find Mailing Lists View 
+//********************************************************************
+/**
+ * Implements hook_views_post_execute()
+ */
+// Throws error.  View does not exist?? ##############################
+// function lalg_wf_utils_views_post_execute(&$view) {										
+// // dpm($view);
+	// if ($view->name == 'find_mailing_lists') {
+		// foreach ($view->result as $key => $result) {
+			// $src = $result->civicrm_group_source;
+			// // Show just System Lists - Remove all results with OG Sync source.
+			// if (strpos($src, 'OG Sync') !== false) {
+				// unset($view->result[$key]);
+			// }
+		// }
+	// }
+// }
+
