@@ -137,122 +137,110 @@
  * Implements hook_form_alter().
  *   Various Functions
  */
-function lalg_wf_utils_form_webform_client_form_alter(&$form, &$form_state, $form_id) {
+//function lalg_wf_utils_form_webform_client_form_alter(&$form, &$form_state, $form_id) {
+function lalg_wf_utils_form_alter(&$form, &$form_state, $form_id) {
 //dpm($form_id);
+//dpm($form);
 	// Exit unless Page is UserDetails or AdminDetails
+	if(!isset($form['#webform_id'])) { return;}
 	if (($form['#webform_id'] !== 'administer_contact_details') && 
 	    ($form['#webform_id'] !== 'user_contact_details')) {
 		return;
 	}
 	
 	// Install Kint diagnostics library 
-	require 'kint.phar';
-//+d($form);
+//	require_once 'kint.phar'; 
+//dpm($form);
 
 //************  Attach Javascript to Webforms for behaviour tweaks. ************
     $form['#attached']['library'][] = 'lalg_wf_utils/lalg_wf_js';
-return; 
-  
+
 //************  Add Membership Price Information  *****************
-  if ($form['progressbar']['#page_num'] == '1') {	
+  if ($form['progress']['#current_page'] == 'contact_details') {	
 // dpm($form);
+// dpm($form['elements']['contact_details']['civicrm_2_contact_1_cg8_fieldset']);
 	// Find the Price Details
 	$prices = lalg_get_price_data();
+
 	// Add to form
-	if (isset($form['submitted']['membership_details']['#description'])) {
-	  $form['submitted']['membership_details']['#description'] .= $prices;
+	if (isset($form['elements']['contact_details']['civicrm_2_contact_1_cg8_fieldset']['markup'])) {
+	  $form['elements']['contact_details']['civicrm_2_contact_1_cg8_fieldset']['markup']['#markup'] = $prices;
 	}
   }
   
 //********************* Copy Postcode if HH not set yet *************************
 // Usability, if User has registered with Postcode it then shows on Webform.
-  if ($form['progressbar']['#page_num'] == '1' && $form_id == 'webform_client_form_8017')  {	
+  if ($form['progress']['#current_page'] == 'contact_details' && $form['#webform_id'] == 'user_contact_details')  {	
 //  dpm($form);
-//  dpm($form_id);
 	// Get current Contact Id
 	$cid = CRM_Core_Session::singleton()->getLoggedInContactID();
 //	dpm($cid);
 	// Get their Postcode
-	$result = civicrm_api3('Contact', 'get', [
-	  'sequential' => 1,
-	  'return' => ["postal_code"],
-	  'id' => $cid,
+	$result = civicrm_api4('Address', 'get', [
+	  'select' => [
+		'postal_code',
+	  ],
+	  'where' => [
+		['contact_id', '=', $cid], 
+		['location_type_id:name', '=', 'Home'],
+	  ],
 	]);
-	$postcode = $result['values'][0]['postal_code'];
+//dpm($result);
+	
+	$postcode = $result[0]['postal_code'];
 //	dpm($postcode);
 	// Set default value for HH Postcode
-	$form['submitted']['civicrm_2_contact_1_fieldset_fieldset']['civicrm_2_contact_1_address_postal_code']['#default_value'] = $postcode;
+	$form['elements']['contact_details']['civicrm_2_contact_1_fieldset_fieldset']['civicrm_2_contact_1_address_postal_code']['#default_value'] = $postcode;
   }
   
 //********************  Add Test version of the Payment Processor for WatirUser (etc.) *******************//
 //  Allows regression tests on live system without reconfiguration.
 
-	$uname = strtolower($GLOBALS['user']->name);
-	if ($uname == 'watiruser' || $uname == 'watir' || $uname == 'tony') {
+	// $uname = strtolower(\Drupal::currentUser()->getUsername());
+// //dpm($uname);
+	// if ($uname == 'watiruser' || $uname == 'watir' || $uname == 'tony') {
 		
-// +d($form);
+// //dpm($form);
 
-		if (isset($form['submitted']['civicrm_1_contribution_1_contribution_payment_processor_id'])) {		
-		// Admin form where there are multiple PP options
-			$ppid =& $form['submitted']['civicrm_1_contribution_1_contribution_payment_processor_id'];
-			//Add the Stripe Test PP as additional option.
-			if (!isset($ppid['#options'][10])) {
-				$ppid['#options'][10] = 'STRIPE Test';
-			}
-			if (strpos($ppid['#webform_component']['extra']['items'], '9|') === false) {
-				$ppid['#webform_component']['extra']['items'] = $ppid['#webform_component']['extra']['items'] . ' 10|STRIPE Test';
-			}	
-		}
+		// if ($form['progress']['#current_page'] == 'contribution_pagebreak' && 
+		  // $form['#webform_id'] == 'administer_contact_details')  {	
+		// // Admin form where there are multiple PP options
+			// $ppid =& $form['elements']['contribution_pagebreak']['civicrm_1_contribution_1_contribution_payment_processor_id'];
+			// //Add the Stripe Test PP as additional option.
+			// if (!isset($ppid['#options'][10])) {
+				// $ppid['#options'][10] = 'STRIPE Test';
+			// }
+			// if (strpos($ppid['#webform_component']['extra']['items'], '9|') === false) {
+				// $ppid['#webform_component']['extra']['items'] = $ppid['#webform_component']['extra']['items'] . ' 10|STRIPE Test';
+			// }	
+		// }
 
-		// User form where there is only a single PP
-		if (strpos($uri, '/userdetails') !== false) {
-			$ppid = (int)$form['#node']->webform_civicrm['data']['contribution'][1]['contribution'][1]['payment_processor_id'];			
-			if ($ppid > 0) {
-				// If Id is odd then it is the Live version, so add one to get to test version
-				if ($ppid % 2 != 0) {
-					$form['#node']->webform_civicrm['data']['contribution'][1]['contribution'][1]['payment_processor_id'] = (string)($ppid + 1);
-					$form['progressbar']['#node']->webform_civicrm['data']['contribution'][1]['contribution'][1]['payment_processor_id'] = (string)($ppid + 1);
-				}
-			}
-		}
-// +d($form);		
-	}
+		// // User form where there is only a single PP
+		// // Can't work out how to do this, so whole area needs a rethink.
+		
+// // +d($form);		
+	// }
  
 }
+
+
 
 // ****************** Helper Routine ********************
 // Extracts and formats the help text containing Membership types and prices
 function lalg_get_price_data() {
-//dpm('Get Price Data');
-  // Check for cached copy
-  $prices = &drupal_static(__FUNCTION__);
-  if (!isset($prices)) {
-    if ($cache = cache_get('lalg_membership_prices')) {
-	$prices = $cache->data;
-    }
-    else {
-		// Do the hard work, and populate $prices
-		// Get all Active Membership Types
-		$result = civicrm_api3('MembershipType', 'get', [
-		  'sequential' => 1,
-		  'is_active' => 1,
-		]);
+	// Get all Active Membership Types
+	$result = civicrm_api4('MembershipType', 'get');
 //dpm($result);
 
-		// Build the Help Text
-		$prices = '</br>Membership Prices: </br>'; 
-		foreach ($result['values'] as $value) {
-//			dpm($value);
-			// Exclude OTM, now that it is discontinued
-			if ( strpos($value['name'], 'Online') === false ) {
-				$prices .= '&nbsp;&nbsp;&nbsp;' . $value['name'] . ' -- £';
-				$prices .= number_format((float)$value['minimum_fee'], 2);
-			}	
-		}
-      // Save back in the cache
-      cache_set('lalg_membership_prices', $prices, 'cache', time() + 7200);		// Actually will be cleared when cron runs - max life two hours
-    }
-  }
+	// Build the Help Text
+	$prices = 'Membership Prices: </br>'; 
+	foreach ($result as $value) { 
+		// Exclude OTM, now that it is discontinued
+		if ( strpos($value['name'], 'Online') === false ) {
+			$prices .= '&nbsp;&nbsp;&nbsp;' . $value['name'] . ' -- £';
+			$prices .= number_format((float)$value['minimum_fee'], 2);
+		}	
+	}
   return $prices;
 }
 
