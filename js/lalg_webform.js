@@ -12,52 +12,54 @@ $(document).ready(function(){
 //console.log($isUserForm);
 	
 //************************* ACCORDIONS ******************************************	
-//  Open Additional Household Member filesets on Webforms if they have content.
+//  Open Additional Household Member Details on Webforms if they have content.
 //  Runs once on page load.
+//  All are closed by default.
 
-//  ****************  All pages of the Webform  ************
-//	Hide all Filesets except the first. (I.e any one that follows another one)
-	$("fieldset.lalg-wf-fs-additional-member + fieldset.lalg-wf-fs-additional-member").hide();
+// TRIAL
+//	$("details.lalg-wf-additional-member").attr("open");
+
 	
-	// When fileset is expanded manually show the next one
-	$("fieldset.lalg-wf-fs-additional-member a.fieldset-title").click(function(){
-//		console.log('Fileset Changed');
-		if (!($(this).parent().parent().parent().hasClass("collapsed"))) {
-			$(this).parent().parent().parent().next("fieldset.lalg-wf-fs-additional-member").show();
-		}
-	});	
+	// // When fileset is expanded manually show the next one
+	// $("fieldset.lalg-wf-fs-additional-member a.fieldset-title").click(function(){
+// //		console.log('Fileset Changed');
+		// if (!($(this).parent().parent().parent().hasClass("collapsed"))) {
+			// $(this).parent().parent().parent().next("fieldset.lalg-wf-fs-additional-member").show();
+		// }
+	// });	
 	
-//	*************  First Page of Webform (Input Fields)  ************
-//	Check whether filesets have content
-	$("fieldset.lalg-wf-fs-additional-member input.lalg-wf-lastname").each(function(index, el) {
-//	console.log('Input field found');
-		if ($(this).val()) {
-			// Be sure to unhide it
-			$(this).parent().parent().parent().show();
-			// Expand it
-			$(this).parent().parent().css("display", "block");
-			$(this).parent().parent().parent().removeClass("collapsed");
-			// Show the next one
-			$(this).parent().parent().parent().next("fieldset.lalg-wf-fs-additional-member").show();
-		};	
-	});
+// //	*************  First Page of Webform (Input Fields)  ************
+// //	Check whether filesets have content
+	// $("fieldset.lalg-wf-fs-additional-member input.lalg-wf-lastname").each(function(index, el) {
+// //	console.log('Input field found');
+		// if ($(this).val()) {
+			// // Be sure to unhide it
+			// $(this).parent().parent().parent().show();
+			// // Expand it
+			// $(this).parent().parent().css("display", "block");
+			// $(this).parent().parent().parent().removeClass("collapsed");
+			// // Show the next one
+			// $(this).parent().parent().parent().next("fieldset.lalg-wf-fs-additional-member").show();
+		// };	
+	// });
 
 //	*************  Confirmation Page of Webform (Text Fields)  *******************
-//	Check whether filesets have content
-	$("fieldset.lalg-wf-fs-additional-member .webform-component-display.lalg-wf-lastname").each(function(index, el) {
-//	console.log('Input field found');
-		var text = $(this).contents().not($(this).children()).text().trim() ;
-//	console.log(text);		
-		if (text) {
-			// Be sure to unhide it
-			$(this).parent().parent().show();
-			// Expand it
-			$(this).parent().css("display", "block");
-			$(this).parent().parent().removeClass("collapsed");
-			// Show the next one
-			$(this).parent().parent().next("fieldset.lalg-wf-fs-additional-member").show();
-		};	
-	});
+//  *************  There is no Confirmation Page in D8  *******************
+// //	Check whether filesets have content
+	// $("fieldset.lalg-wf-fs-additional-member .webform-component-display.lalg-wf-lastname").each(function(index, el) {
+// //	console.log('Input field found');
+		// var text = $(this).contents().not($(this).children()).text().trim() ;
+// //	console.log(text);		
+		// if (text) {
+			// // Be sure to unhide it
+			// $(this).parent().parent().show();
+			// // Expand it
+			// $(this).parent().css("display", "block");
+			// $(this).parent().parent().removeClass("collapsed");
+			// // Show the next one
+			// $(this).parent().parent().next("fieldset.lalg-wf-fs-additional-member").show();
+		// };	
+	// });
 	
 // *********************** FUNCTIONS TO SET FLAGS ETC. DEPENDING ON STATE OF FORM  *************************
 // *********************************************************************************************************
