@@ -8,61 +8,12 @@ $(document).ready(function(){
 //	console.log("Webform Loaded");
 
 	// Admin or User form
-	$isUserForm = $("div.lalg-wf-membership-type").hasClass("lalg-wf-user-form");
+	$isUserForm = $("form.lalg-memb-wf").hasClass("lalg-memb-userdetails");
 //console.log($isUserForm);
 	
-//************************* ACCORDIONS ******************************************	
-//  Open Additional Household Member Details on Webforms if they have content.
-//  Runs once on page load.
-//  All are closed by default.
 
-// TRIAL
-//	$("details.lalg-wf-additional-member").attr("open");
-
-	
-	// // When fileset is expanded manually show the next one
-	// $("fieldset.lalg-wf-fs-additional-member a.fieldset-title").click(function(){
-// //		console.log('Fileset Changed');
-		// if (!($(this).parent().parent().parent().hasClass("collapsed"))) {
-			// $(this).parent().parent().parent().next("fieldset.lalg-wf-fs-additional-member").show();
-		// }
-	// });	
-	
-// //	*************  First Page of Webform (Input Fields)  ************
-// //	Check whether filesets have content
-	// $("fieldset.lalg-wf-fs-additional-member input.lalg-wf-lastname").each(function(index, el) {
-// //	console.log('Input field found');
-		// if ($(this).val()) {
-			// // Be sure to unhide it
-			// $(this).parent().parent().parent().show();
-			// // Expand it
-			// $(this).parent().parent().css("display", "block");
-			// $(this).parent().parent().parent().removeClass("collapsed");
-			// // Show the next one
-			// $(this).parent().parent().parent().next("fieldset.lalg-wf-fs-additional-member").show();
-		// };	
-	// });
-
-//	*************  Confirmation Page of Webform (Text Fields)  *******************
-//  *************  There is no Confirmation Page in D8  *******************
-// //	Check whether filesets have content
-	// $("fieldset.lalg-wf-fs-additional-member .webform-component-display.lalg-wf-lastname").each(function(index, el) {
-// //	console.log('Input field found');
-		// var text = $(this).contents().not($(this).children()).text().trim() ;
-// //	console.log(text);		
-		// if (text) {
-			// // Be sure to unhide it
-			// $(this).parent().parent().show();
-			// // Expand it
-			// $(this).parent().css("display", "block");
-			// $(this).parent().parent().removeClass("collapsed");
-			// // Show the next one
-			// $(this).parent().parent().next("fieldset.lalg-wf-fs-additional-member").show();
-		// };	
-	// });
-	
-// *********************** FUNCTIONS TO SET FLAGS ETC. DEPENDING ON STATE OF FORM  *************************
-// *********************************************************************************************************
+// ****************** FUNCTIONS TO SET FLAGS ETC. DEPENDING ON STATE OF FORM  ***********************
+// **************************************************************************************************
 
 // *****************  First Time only on Page Load  *********************************
 	// Default Membership Type Required to None on first load (Admin Form - User form has Radios)
@@ -186,6 +137,9 @@ $(document).ready(function(){
 		}
 //		console.log("Membership Action = " + $('input.lalg-wf-memact').val());	
 	}
+
+//*********************** VARIOUS OTHER FUNCTIONS **************************************
+// *************************************************************************************
 	
 //**************************  Set Billing Email, on Admin Screen  ***********************
 //  Set default on page load, or when membership type changes, or copy from Home Email
@@ -194,38 +148,38 @@ $(document).ready(function(){
 		setDefaultBillingEmail();
 		
 		// Set default when membership type changes, if required
-		$("select.lalg-wf-membership-type").change(function(){
+		$("select.lalg-memb-membership-type").change(function(){
 			setDefaultBillingEmail(); 
 		});
 		
 		// Set default when Home Email changes, if required 
-		$("input.lalg-wf-email").blur(function(){
+		$("input.lalg-memb-email").blur(function(){
 			setDefaultBillingEmail();
 		});
 	}
 	
 	function setDefaultBillingEmail() {
 		// If Membership Type is set and Home Email is blank
-		if ($("select.lalg-wf-membership-type").val() && !$("input.lalg-wf-email").val()) {
-			$("input.lalg-wf-billing-email").val('membership@lalg.org.uk');			
+// console.log('setDefaultBillingEmail');
+		if ($("select.lalg-memb-membership-type").val() && !$("input.lalg-memb-email").val()) {
+			$("input.lalg-memb-billing-email").val('membership@lalg.org.uk');			
 		}
 		else {
-			$("input.lalg-wf-billing-email").val('');
+			$("input.lalg-memb-billing-email").val('');
 		}
 	}
 	
-	
-//*********************** VARIOUS OTHERS *****************************************
-// Default Household Name for new Contact	
-	$("input.lalg-wf-lastname").blur(function(){
-		if(!$("input.lalg-wf-hhname").val()) {
-			$("input.lalg-wf-hhname").val($(this).val() + ' Household');
+//**********************  Default Household Name for new Contact  **************************	
+
+	$("input.lalg-memb-lastname").blur(function(){
+		if(!$("input.lalg-memb-hhname").val()) {
+			$("input.lalg-memb-hhname").val($(this).val() + ' Household');
 		}
 	});	
 	
-//****************************************************************
-// When Postcode field changes
-	$("input.lalg-wf-postcode").blur(function(){
+//**********************  Capitalise Postcode field (on changes)  ****************************
+ 
+	$("input.lalg-memb-postcode").blur(function(){
 	  // Capitalise it, and remove blank space
 	    $(this).val( $(this).val().toUpperCase() );
 		$(this).val($(this).val().trim());
@@ -233,10 +187,10 @@ $(document).ready(function(){
 		$(this).val($(this).val().replace("  ", " "));	  
 	  
 	  // And copy to the Dedupe Key field (Admin form only)
-	  $("input.lalg-wf-ddkey").val($(this).val());
+	  $("input.lalg-memb-ddkey").val($(this).val());
 	});	
 
-//**********************  Free Membership Only  *************************
+//**********************  Free Membership (or any zero payment)  *************************
 // Hide Payment Method for Zero Total on Payment page
 	$("tr#wf-crm-billing-total td:nth-child(2)").each(function() {
 		if ($(this).text() == '£ 0.00') {
@@ -254,7 +208,7 @@ $(document).ready(function(){
 		$(this).html(txt);	
 	});
 	
-//********************  Hide/Show the Card-Prompt help field on Payment page
+//************  Hide/Show the Card-Prompt help field on Payment page  ************
 // Hide on first loading
 	$("div.webform-component--card-prompt").hide();
 	
@@ -277,7 +231,7 @@ $(document).ready(function(){
 		observer.observe(target, {childList: true}); 
 	}
 	
-//***********************  Hide/Show the Wait-Prompt field on the Payment Page  ****************
+//****************  Hide/Show the Wait-Prompt field on the Payment Page  ****************
 // Hide on first loading
 	$("div.webform-component--wait-prompt").hide();
 	
