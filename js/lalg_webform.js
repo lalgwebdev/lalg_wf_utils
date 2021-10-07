@@ -210,38 +210,56 @@ $(document).ready(function(){
 	
 //************  Hide/Show the Card-Prompt help field on Payment page  ************
 // Hide on first loading
-	$("div.webform-component--card-prompt").hide();
+	$("div.lalg-memb-card-prompt").hide();
 	
-// Show/Hide when Billing Block changes
-	// The node to be monitored
-	var target = document.getElementById('billing-payment-block');
-
-	// Create an observer instance
-	var observer = new MutationObserver(function( mutations ) {
-		if ( $("#billing-payment-block").is(':empty') ) {
-			$("div.webform-component--card-prompt").hide();
+	$('input[name="civicrm_1_contribution_1_contribution_payment_processor_id"]').change(function(){
+//		console.log($(this).val());
+		var ppid = $(this).val();
+		if (ppid >= 9 && ppid <= 12) {
+			$("div.lalg-memb-card-prompt").show();
 		}
 		else {
-			$("div.webform-component--card-prompt").show();		
+			$("div.lalg-memb-card-prompt").hide();		
 		}
-	});
+	}); 
+
+// // Show/Hide when Billing Block changes
+	// // The node to be monitored
+// //	var target = document.getElementById('billing-payment-block');
+// var xx = document.getElementById('billing-payment-block');
+// console.log(xx);
+// if(xx) {
+	// var target = xx.getElementById('billing-payment-block');
+// console.log(target);
+// }
+
+	// // Create an observer instance
+	// var observer = new MutationObserver(function( mutations ) {
+// console.log("Mutation Observer fired");		
+// //		if ( $("#billing-payment-block").is(':empty') ) {
+		// if ( $("#billing-payment-block div#card-element") ) {
+			// $("div.lalg-memb-card-prompt").show();
+		// }
+		// else {
+			// $("div.lalg-memb-card-prompt").hide();		
+		// }
+	// });
 	 
-	// Pass in the target node, as well as the observer options
-	if (target) {
-		observer.observe(target, {childList: true}); 
-	}
+	// // Pass in the target node, as well as the observer options
+// if(xx) {
+	// if (target) {
+		// observer.observe(target, {childList: true}); 
+	// }
+// }
 	
 //****************  Hide/Show the Wait-Prompt field on the Payment Page  ****************
 // Hide on first loading
-	$("div.webform-component--wait-prompt").hide();
+	$("div.lalg-memb-wait-prompt").hide();
 	
 // Show when Submit button clicked
-	// Check on Payment page
-	if ( $("table#wf-crm-billing-items") ) {
-		$("input.webform-submit").click( function() {
-			$("div.webform-component--wait-prompt").show();
-		});
-	}
+	$("input.webform-button--submit").click( function() {
+		$("div.lalg-memb-wait-prompt").show();
+	});
 
 
 });				// End Document Ready
