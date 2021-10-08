@@ -18,124 +18,118 @@ $(document).ready(function(){
 // *****************  First Time only on Page Load  *********************************
 	// Default Membership Type Required to None on first load (Admin Form - User form has Radios)
 	if (!document.referrer.includes('admindetails')) { 
-		$("select.lalg-wf-membership-type :nth-child(1)").prop('selected', true);
+		$("select.lalg-memb-membership-type :nth-child(1)").prop('selected', true);
 	}
-	
-	// Hide Label of Replacement Request Tag
-	$("div.lalg-wf-replace-tag label").hide();
 
 // ******************  Call Set State function on first load, and change of Membership Type Required  ********
 	lalg_set_flags();
-	$("select.lalg-wf-membership-type").change(function(){ lalg_set_flags(); });
-	$("input.lalg-wf-membership-type").change(function(){ lalg_set_flags(); });	
-	$('input.lalg-wf-replace-tag').change(function(){ lalg_set_flags(); });
+	$("select.lalg-memb-membership-type").change(function(){ lalg_set_flags(); });
+	$("input.lalg-memb-membership-type").change(function(){ lalg_set_flags(); });	
+	$('input.lalg-memb-replace-tag').change(function(){ lalg_set_flags(); });
 
 // *****************  Function called on page load and on changing Membership Type Requested
 	function lalg_set_flags() {
 		
 // ***************************  Get information to work on  ************************
 		// Admin or User form
-		$isUserForm = $("div.lalg-wf-membership-type").hasClass("lalg-wf-user-form");
-//console.log($isUserForm);
+		$isUserForm = $("form.lalg-memb-wf").hasClass("lalg-memb-userdetails");
+console.log("User Form = " + $isUserForm);
 		
 		// Existing Membership Type
-		$existingType = $('input.lalg-wf-existing-mship').val();		
+		$existingType = $('input.lalg-memb-existing-mship').val();		
 		if (!$existingType) { $existingType = "";}				// Convert 'undefined' to String	
-//console.log($existingType);
+console.log("Existing Type = " + $existingType);
 
 		// Existing Membership Status	
-		$status = $('input.lalg-wf-membership-status').val();
+		$status = $('input.lalg-memb-mship-status').val();
 		if (!$status) { $status = "" }							// Convert 'undefined' to String	
-//console.log($status);
+console.log("Existing Status = " + $status);
 		
 		// Membership Type Required.  Id Number, or zero if none. 
 		// Webform Conditionals hide Membership Type Required if it can't be used, else it's mandatory on User form. 
-		$typeVis = $("div.lalg-wf-user-form.lalg-wf-membership-type-wrapper").is(':visible');
+		$typeVis = $("div.lalg-wf-membership-type-wrapper").is(':visible');
 			
 		// Get the selected new membership type.
 		if ($isUserForm) {
 			if ($typeVis) {
-				$reqType = $("div.lalg-wf-membership-type input:checked").val();
+				$reqType = $("div.lalg-memb-membership-type input:checked").val();
 			}
 			else $reqType = 0;
 		}
 		else {
-			$reqType = $("select.lalg-wf-membership-type").val();
+			$reqType = $("select.lalg-memb-membership-type").val();
 		}
 		if (!$reqType) { $reqType = 0; }
-//console.log($reqType);		
+console.log("Requested Type = " + $reqType);		
 			
 		// Replacement Card Requested
 		$replace = false;
-		$('input.lalg-wf-replace-tag').each(function() {
+		$('input.lalg-memb-replace-tag').each(function() {
 			if ($(this).prop('checked')) {$replace = true}				// Set if any Replacement Request set
 		});
 		
 // ***************************  Set Membership Requested  *******************
 		// Set Membership Requested flag if any Membership Type set.  Else clear flag.
 		if( $reqType ) {
-			$("div.lalg-wf-process-tag div:nth-of-type(1) input").prop('checked', true);
+			$("div.lalg-memb-process-tag div:nth-of-type(1) input").prop('checked', true);
 		}
 		else {
-			$("div.lalg-wf-process-tag div:nth-of-type(1) input").prop('checked', false);	
+			$("div.lalg-memb-process-tag div:nth-of-type(1) input").prop('checked', false);	
 		}
 		
-// ***************************  Set Replacement Card visibility  *******************
-		// Do nothing if on the Preview page
-		$preview = $('form.webform-client-form').hasClass('preview');		//console.log($preview);
-		if (!$preview) {
-			// Hide Replacement Card flags, and uncheck it, if:
-			//   Any Membership Type selected, OR 
-			//   Existing Type is Empty, or OTM OR
-			//   Status is Pending, or Lapsed, or Cancelled
-			if ( $reqType || !$existingType || $existingType.includes("Online") ||
-			   $status.includes("Pending") || $status.includes("Lapsed") || $status.includes("Cancelled") ) { 
-				$("div.lalg-wf-replace-tag-wrapper").hide();
-				$("div.lalg-wf-replace-tag input").prop('checked', false);
-			   }
-			// Else show flag
-			else { $("div.lalg-wf-replace-tag-wrapper").show(); }
-		}
+// ***************************  Then Set Replacement Card visibility  *******************
+		// Hide Replacement Card flags, and uncheck it, if:
+		//   Any Membership Type selected, OR 
+		//   Existing Type is Empty, OR
+		//   Status is Lapsed, or Cancelled
+		if ( $reqType || !$existingType || 
+		      $status.includes("Lapsed") || $status.includes("Cancelled") ) { 
+			$("div.lalg-memb-replace-tag-wrapper").hide();
+			$("div.lalg-memb-replace-tag input").prop('checked', false);
+		   }
+		// Else show flag
+		else { $("div.lalg-memb-replace-tag-wrapper").show(); }
+
 		
 // ***************************  Set Email Preferences  *******************
 		// Set Information Emails flag if joining for the first time, or after lapsing.
 		if ( $reqType && ( !$existingType || $status.includes("Lapsed") )) {
-			$("input.lalg-wf-emailoptions[data-civicrm-field-key$='contact_1_cg4_custom_9'][value=1]" ).prop('checked', true);
+			$("input.lalg-memb-emailoptions[data-civicrm-field-key$='contact_1_cg4_custom_9'][value=1]" ).prop('checked', true);
 		}
 		// Set Newsletter Emails if Joining with plain Membership for first time, after lapsing, or changing membership type.
 		if ($reqType == 7 && (!$existingType || $status.includes("Lapsed") || $existingType.includes("Printed"))) {
-			$("input.lalg-wf-emailoptions[data-civicrm-field-key$='contact_1_cg4_custom_9'][value=2]" ).prop('checked', true);
+			$("input.lalg-memb-emailoptions[data-civicrm-field-key$='contact_1_cg4_custom_9'][value=2]" ).prop('checked', true);
 		}		
 
 // ***************************  Set Latest Membership Action  ******************
 		// Default to New Joiner.  E.g. when Additional HH member added to existing HH.
-		$('input.lalg-wf-memact').val(1);
+		$('input.lalg-memb-memact').val(1);
 		
 		// If any Replace Tag set then Action => Replace.  Can't be set at same time as Membership Requested
 		// Override later if required.
-		$('input.lalg-wf-replace-tag').each(function() {
-			if ($(this).prop('checked')) {$('input.lalg-wf-memact').val(3);}
+		$('input.lalg-memb-replace-tag').each(function() {
+			if ($(this).prop('checked')) {$('input.lalg-memb-memact').val(3);}
 		});
 		
 		// Do nothing unless a Membership Type has been selected.
 		if ( $reqType ) {
 			// If no existing membership then Action => Join
 			if (!$existingType) {
-				$('input.lalg-wf-memact').val(1);
+				$('input.lalg-memb-memact').val(1);
 			}
 			else {
 				// If Membership State Current or Renewable then Action => Renew
 				if ($status.includes("New") || $status.includes("Current") || $status.includes("Renew") || 
-						$status.includes("Overdue") || $status.includes("Grace") || $status.includes("Pending")) {
-					$('input.lalg-wf-memact').val(2);
+						$status.includes("Overdue") || $status.includes("Grace") ) {
+					$('input.lalg-memb-memact').val(2);
 				}
 				// Other Membership status Action => Rejoin
 				else {
-					$('input.lalg-wf-memact').val(4);
+					$('input.lalg-memb-memact').val(4);
 				}
 			}	
 		}
-//		console.log("Membership Action = " + $('input.lalg-wf-memact').val());	
+		console.log("Membership Action = " + $('input.lalg-memb-memact').val());	
 	}
 
 //*********************** VARIOUS OTHER FUNCTIONS **************************************
@@ -209,8 +203,10 @@ $(document).ready(function(){
 	});
 	
 //************  Hide/Show the Card-Prompt help field on Payment page  ************
-// Hide on first loading
-	$("div.lalg-memb-card-prompt").hide();
+// Hide on first loading - if Admin page
+	if (!isUserForm) {
+		$("div.lalg-memb-card-prompt").hide();
+	}
 	
 	$('input[name="civicrm_1_contribution_1_contribution_payment_processor_id"]').change(function(){
 //		console.log($(this).val());
@@ -223,34 +219,6 @@ $(document).ready(function(){
 		}
 	}); 
 
-// // Show/Hide when Billing Block changes
-	// // The node to be monitored
-// //	var target = document.getElementById('billing-payment-block');
-// var xx = document.getElementById('billing-payment-block');
-// console.log(xx);
-// if(xx) {
-	// var target = xx.getElementById('billing-payment-block');
-// console.log(target);
-// }
-
-	// // Create an observer instance
-	// var observer = new MutationObserver(function( mutations ) {
-// console.log("Mutation Observer fired");		
-// //		if ( $("#billing-payment-block").is(':empty') ) {
-		// if ( $("#billing-payment-block div#card-element") ) {
-			// $("div.lalg-memb-card-prompt").show();
-		// }
-		// else {
-			// $("div.lalg-memb-card-prompt").hide();		
-		// }
-	// });
-	 
-	// // Pass in the target node, as well as the observer options
-// if(xx) {
-	// if (target) {
-		// observer.observe(target, {childList: true}); 
-	// }
-// }
 	
 //****************  Hide/Show the Wait-Prompt field on the Payment Page  ****************
 // Hide on first loading
