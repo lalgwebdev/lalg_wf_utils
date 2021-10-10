@@ -147,10 +147,6 @@ function lalg_wf_utils_form_alter(&$form, &$form_state, $form_id) {
 	    ($form['#webform_id'] !== 'user_contact_details')) {
 		return;
 	}
-	
-	// Install Kint diagnostics library 
-//	require_once 'kint.phar'; 
-//dpm($form);
 
 //************  Attach Javascript to Webforms for behaviour tweaks. ************
     $form['#attached']['library'][] = 'lalg_wf_utils/lalg_wf_js';
