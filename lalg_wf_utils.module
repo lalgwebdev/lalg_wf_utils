@@ -152,21 +152,21 @@ function lalg_wf_utils_form_alter(&$form, &$form_state, $form_id) {
     $form['#attached']['library'][] = 'lalg_wf_utils/lalg_wf_js';
 
 //************  Add Membership Price Information  *****************
-  if ($form['progress']['#current_page'] == 'contact_details') {	
+  if ($form['progress']['#current_page'] == 'contact_pagebreak') {	
 // dpm($form);
-// dpm($form['elements']['contact_details']['civicrm_2_contact_1_cg8_fieldset']);
+// dpm($form['elements']['contact_pagebreak']['civicrm_2_contact_1_cg8_fieldset']);
 	// Find the Price Details
 	$prices = lalg_get_price_data();
 
 	// Add to form
-	if (isset($form['elements']['contact_details']['civicrm_2_contact_1_cg8_fieldset']['markup'])) {
-	  $form['elements']['contact_details']['civicrm_2_contact_1_cg8_fieldset']['markup']['#markup'] = $prices;
+	if (isset($form['elements']['contact_pagebreak']['civicrm_2_contact_1_cg8_fieldset']['markup'])) {
+	  $form['elements']['contact_pagebreak']['civicrm_2_contact_1_cg8_fieldset']['markup']['#markup'] = $prices;
 	}
   }
   
 //********************* Copy Postcode if HH not set yet *************************
 // Usability, if User has registered with Postcode it then shows on Webform.
-  if ($form['progress']['#current_page'] == 'contact_details' && $form['#webform_id'] == 'user_contact_details')  {	
+  if ($form['progress']['#current_page'] == 'contact_pagebreak' && $form['#webform_id'] == 'user_contact_details')  {	
 //  dpm($form);
 	// Get current Contact Id
 	$cid = CRM_Core_Session::singleton()->getLoggedInContactID();

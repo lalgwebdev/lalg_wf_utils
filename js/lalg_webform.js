@@ -5,12 +5,10 @@
 (function( $ ) {
 
 $(document).ready(function(){
-//	console.log("Webform Loaded");
-
+//console.log("Webform Loaded");
 	// Admin or User form
-	$isUserForm = $("form.lalg-memb-wf").hasClass("lalg-memb-userdetails");
-//console.log($isUserForm);
-	
+	var isUserForm = $("form.lalg-memb-wf").hasClass("lalg-memb-userdetails");
+//console.log(isUserForm);
 
 // ****************** FUNCTIONS TO SET FLAGS ETC. DEPENDING ON STATE OF FORM  ***********************
 // **************************************************************************************************
@@ -26,51 +24,59 @@ $(document).ready(function(){
 	$("select.lalg-memb-membership-type").change(function(){ lalg_set_flags(); });
 	$("input.lalg-memb-membership-type").change(function(){ lalg_set_flags(); });	
 	$('input.lalg-memb-replace-tag').change(function(){ lalg_set_flags(); });
-
+	
 // *****************  Function called on page load and on changing Membership Type Requested
 	function lalg_set_flags() {
 		
-// ***************************  Get information to work on  ************************
-		// Admin or User form
-		$isUserForm = $("form.lalg-memb-wf").hasClass("lalg-memb-userdetails");
-console.log("User Form = " + $isUserForm);
+//*************************  Stage 1 - Copy information into off-page fields.  Page 1 only  *******************
+		// Copy Existing Membership Type, if field present
+		var $existing = $('input.lalg-memb-existing-mship');
+		if ($existing.length) {
+			$('input.lalg-memb-cf-existing-mship').val($existing.val());
+		}
 		
-		// Existing Membership Type
-		$existingType = $('input.lalg-memb-existing-mship').val();		
-		if (!$existingType) { $existingType = "";}				// Convert 'undefined' to String	
-console.log("Existing Type = " + $existingType);
-
-		// Existing Membership Status	
-		$status = $('input.lalg-memb-mship-status').val();
-		if (!$status) { $status = "" }							// Convert 'undefined' to String	
-console.log("Existing Status = " + $status);
-		
-		// Membership Type Required.  Id Number, or zero if none. 
-		// Webform Conditionals hide Membership Type Required if it can't be used, else it's mandatory on User form. 
-		$typeVis = $("div.lalg-wf-membership-type-wrapper").is(':visible');
-			
-		// Get the selected new membership type.
-		if ($isUserForm) {
-			if ($typeVis) {
-				$reqType = $("div.lalg-memb-membership-type input:checked").val();
+		// Extract Id number of Membership Type Requested from radios or select field, if present
+		// Non-visible or undefined are converted to '0'
+		var typeVal, $userType, $adminType;
+		if (isUserForm) {
+			$userType = $("div.lalg-memb-membership-type");
+//			if ($("div.lalg-wf-membership-type-wrapper").is(':visible')) {
+			if ($userType) {
+				typeVal = $("div.lalg-memb-membership-type input:checked").val();
 			}
-			else $reqType = 0;
 		}
 		else {
-			$reqType = $("select.lalg-memb-membership-type").val();
+			$adminType = $("select.lalg-memb-membership-type");
+			if ($adminType) {
+				typeVal = $adminType.val();
+			}
 		}
-		if (!$reqType) { $reqType = 0; }
-console.log("Requested Type = " + $reqType);		
-			
-		// Replacement Card Requested
-		$replace = false;
-		$('input.lalg-memb-replace-tag').each(function() {
-			if ($(this).prop('checked')) {$replace = true}				// Set if any Replacement Request set
-		});
+
+		if (($userType && $userType.length) || ($adminType && $adminType.length)) {
+			$("input.lalg-memb-cf-membership-type").val(typeVal);
+		}
 		
+// ****************  Stage 2 - Get information to work on into local variables.  Page 1 and 2 *************
+		// Existing Membership Type
+		var existingType = $('input.lalg-memb-cf-existing-mship').val();		
+		if (!existingType) { existingType = "";}				// Convert 'undefined' to String	
+//console.log("Existing Type = " + existingType);
+
+		// Existing Membership Status  (Original field is off-page)	
+		var membStatus = $('input.lalg-memb-mship-status').val();
+		if (!membStatus) { membStatus = "" }							// Convert 'undefined' to String	
+//console.log("Existing Status = " + membStatus);
+			
+		// Get the selected new membership type.
+		var reqType = $("input.lalg-memb-cf-membership-type").val();
+		if (!reqType) { reqType = 0; }							// Convert 'undefined' to zero
+//console.log("Requested Type = " + reqType);		
+			
+//  **************************Stage 3 - Set the flags etc.  ***********************
+			
 // ***************************  Set Membership Requested  *******************
 		// Set Membership Requested flag if any Membership Type set.  Else clear flag.
-		if( $reqType ) {
+		if( reqType ) {
 			$("div.lalg-memb-process-tag div:nth-of-type(1) input").prop('checked', true);
 		}
 		else {
@@ -82,45 +88,56 @@ console.log("Requested Type = " + $reqType);
 		//   Any Membership Type selected, OR 
 		//   Existing Type is Empty, OR
 		//   Status is Lapsed, or Cancelled
-		if ( $reqType || !$existingType || 
-		      $status.includes("Lapsed") || $status.includes("Cancelled") ) { 
-			$("div.lalg-memb-replace-tag-wrapper").hide();
-			$("div.lalg-memb-replace-tag input").prop('checked', false);
+		if ( reqType || !existingType || 
+		      membStatus.includes("Lapsed") || membStatus.includes("Cancelled") ) { 
+			$("fieldset.lalg-memb-replace-tag-wrapper").hide();
+			$("fieldset.lalg-memb-replace-tag input").prop('checked', false);
 		   }
 		// Else show flag
-		else { $("div.lalg-memb-replace-tag-wrapper").show(); }
+		else { $("fieldset.lalg-memb-replace-tag-wrapper").show(); }
 
 		
 // ***************************  Set Email Preferences  *******************
 		// Set Information Emails flag if joining for the first time, or after lapsing.
-		if ( $reqType && ( !$existingType || $status.includes("Lapsed") )) {
+		if ( reqType && ( !existingType || membStatus.includes("Lapsed") )) {
 			$("input.lalg-memb-emailoptions[data-civicrm-field-key$='contact_1_cg4_custom_9'][value=1]" ).prop('checked', true);
 		}
 		// Set Newsletter Emails if Joining with plain Membership for first time, after lapsing, or changing membership type.
-		if ($reqType == 7 && (!$existingType || $status.includes("Lapsed") || $existingType.includes("Printed"))) {
+		if (reqType == 7 && (!existingType || membStatus.includes("Lapsed") || existingType.includes("Printed"))) {
 			$("input.lalg-memb-emailoptions[data-civicrm-field-key$='contact_1_cg4_custom_9'][value=2]" ).prop('checked', true);
 		}		
 
 // ***************************  Set Latest Membership Action  ******************
-		// Default to New Joiner.  E.g. when Additional HH member added to existing HH.
-		$('input.lalg-memb-memact').val(1);
+		// Default - overwrite as required
+		if (reqType) {
+			// New Joiner.  E.g. when Additional HH member added to existing HH.
+			$('input.lalg-memb-memact').val(1);
+		}
+		else {
+			$('input.lalg-memb-memact').val(0);
+		}
 		
-		// If any Replace Tag set then Action => Replace.  Can't be set at same time as Membership Requested
-		// Override later if required.
-		$('input.lalg-memb-replace-tag').each(function() {
-			if ($(this).prop('checked')) {$('input.lalg-memb-memact').val(3);}
-		});
+		// If Replace Tag set then Action => Replace.  Can't be set at same time as Membership Requested
+		// Contact 1 on Page 1 contained in Fieldset
+		if ($('fieldset input.lalg-memb-replace-tag').prop('checked')) {
+			$('input.lalg-memb-memact').val(3);
+		}
+		// Additional members contained in Details
+		$("details.lalg-wf-additional-member").each(function() {
+			if ($(this).find("input.lalg-memb-replace-tag").prop('checked')) {
+				$(this).find('input.lalg-memb-memact').val(3);
+			}
+		});	
 		
 		// Do nothing unless a Membership Type has been selected.
-		if ( $reqType ) {
+		if ( reqType ) {
 			// If no existing membership then Action => Join
-			if (!$existingType) {
+			if (!existingType) {
 				$('input.lalg-memb-memact').val(1);
 			}
 			else {
 				// If Membership State Current or Renewable then Action => Renew
-				if ($status.includes("New") || $status.includes("Current") || $status.includes("Renew") || 
-						$status.includes("Overdue") || $status.includes("Grace") ) {
+				if (membStatus.includes("New") || membStatus.includes("Current") || membStatus.includes("Renew") || membStatus.includes("Overdue") || membStatus.includes("Grace") ) {
 					$('input.lalg-memb-memact').val(2);
 				}
 				// Other Membership status Action => Rejoin
@@ -129,7 +146,7 @@ console.log("Requested Type = " + $reqType);
 				}
 			}	
 		}
-		console.log("Membership Action = " + $('input.lalg-memb-memact').val());	
+//console.log("Membership Action = " + $('input.lalg-memb-memact').val());	
 	}
 
 //*********************** VARIOUS OTHER FUNCTIONS **************************************
@@ -137,7 +154,7 @@ console.log("Requested Type = " + $reqType);
 	
 //**************************  Set Billing Email, on Admin Screen  ***********************
 //  Set default on page load, or when membership type changes, or copy from Home Email
-	if (!$isUserForm) {
+	if (!isUserForm) {
 		// Set default on page load, if required. (Should always default blank anyway.)
 		setDefaultBillingEmail();
 		
