@@ -10,6 +10,17 @@ $(document).ready(function(){
 	var isUserForm = $("form.lalg-memb-wf").hasClass("lalg-memb-userdetails");
 //console.log(isUserForm);
 
+//*************************  Additional Members Accordions ***********************
+	// Set initial state depending on content
+	$('details').each(function() {
+		if ($(this).find("input.lalg-memb-lastname").val()) {
+			$(this).attr('open', 'open');
+		} 
+		else {
+			$(this).removeAttr('open');
+		}
+	});
+
 // ****************** FUNCTIONS TO SET FLAGS ETC. DEPENDING ON STATE OF FORM  ***********************
 // **************************************************************************************************
 
@@ -77,12 +88,12 @@ $(document).ready(function(){
 // ***************************  Set Membership Requested  *******************
 		// Set Membership Requested flag if any Membership Type set.  Else clear flag.
 		if( reqType ) {
-			$("div.lalg-memb-process-tag div:nth-of-type(1) input").prop('checked', true);
+			$("fieldset.lalg-memb-process-tag input.lalg-memb-process-tag[value='13']").prop('checked', true);
 		}
 		else {
-			$("div.lalg-memb-process-tag div:nth-of-type(1) input").prop('checked', false);	
+			$("fieldset.lalg-memb-process-tag input.lalg-memb-process-tag[value='13']").prop('checked', false);	
 		}
-		
+	
 // ***************************  Then Set Replacement Card visibility  *******************
 		// Hide Replacement Card flags, and uncheck it, if:
 		//   Any Membership Type selected, OR 
@@ -108,18 +119,13 @@ $(document).ready(function(){
 		}		
 
 // ***************************  Set Latest Membership Action  ******************
-		// Default - overwrite as required
-		if (reqType) {
-			// New Joiner.  E.g. when Additional HH member added to existing HH.
-			$('input.lalg-memb-memact').val(1);
-		}
-		else {
-			$('input.lalg-memb-memact').val(0);
-		}
+		// Default to New Joiner - covers the case when when Additional HH member added to existing HH. 
+		// Then overwrite as required
+		$('input.lalg-memb-memact').val(1);
 		
 		// If Replace Tag set then Action => Replace.  Can't be set at same time as Membership Requested
 		// Contact 1 on Page 1 contained in Fieldset
-		if ($('fieldset input.lalg-memb-replace-tag').prop('checked')) {
+		if ($('fieldset.lalg-membership-details input.lalg-memb-replace-tag').prop('checked')) {
 			$('input.lalg-memb-memact').val(3);
 		}
 		// Additional members contained in Details
