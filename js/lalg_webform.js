@@ -50,10 +50,10 @@ $(document).ready(function(){
 		// Non-visible or undefined are converted to '0'
 		var typeVal, $userType, $adminType;
 		if (isUserForm) {
-			$userType = $("div.lalg-memb-membership-type");
+			$userType = $("fieldset.lalg-memb-membership-type");
 //			if ($("div.lalg-wf-membership-type-wrapper").is(':visible')) {
 			if ($userType) {
-				typeVal = $("div.lalg-memb-membership-type input:checked").val();
+				typeVal = $("fieldset.lalg-memb-membership-type input:checked").val();
 			}
 		}
 		else {
@@ -190,6 +190,7 @@ $(document).ready(function(){
 
 	$("input.lalg-memb-lastname").blur(function(){
 		if(!$("input.lalg-memb-hhname").val()) {
+console.log('Last Name: ' + $(this).val());			
 			$("input.lalg-memb-hhname").val($(this).val() + ' Household');
 		}
 	});	

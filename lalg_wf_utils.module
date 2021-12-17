@@ -1,135 +1,5 @@
 <?php
 
-// //********************************************************************
-// // Custom Webform Validation Rules
-// //********************************************************************
-
-// /**
- // * Implements hook_webform_validation_validators().
- // */
-// function lalg_wf_utils_webform_validation_validators() {
-  // return array(
-    // 'all_or_none' => array(
-      // 'name' => "LALG All or None",
-      // 'description' => "Checks all or none of the specified fields have content.",
-      // 'component_types' => array(
-        // 'textfield', 'email',
-      // ),
-    // ),
-	// 'lalg_email_dependencies' => array(
-      // 'name' => "LALG Email Dependencies",
-      // 'description' => "Checks dependencies on Email field. Select Membership Type, Last Name and Email",
-      // 'component_types' => array(
-        // 'textfield', 'email', 'select',
-      // ),	 
-	// ),
-	// 'lalg_unique_or_empty' => array(
-	  // 'name' => 'LALG Unique or Empty',
-	  // 'description' => 'Selected fields cannot be duplicates, unless they are empty.  Case insensitive.',
-      // 'component_types' => array(
-        // 'textfield', 'email', 
-      // ),
-	// )
-  // );
-// }
-
-// /**
- // * Implements hook_webform_validation_validate().
- // */
-// function lalg_wf_utils_webform_validation_validate($validator_name, $items, $components, $rule) {
-  // if ($items) {
-    // switch ($validator_name) {
-		
-// // ****************  All or None Validator  ***********************		
-      // case 'all_or_none':
-// // dpm($items);	  
-        // $errors = array();
-        // foreach ($items as $key => $val) {
-			// $items[$key] = (bool) strlen($items[$key]);
-        // }
-		// $number_completed = count(array_filter($items));
-		// if ($number_completed > 0 && $number_completed < count($items) ) {
-			// // Generate Error Message(s)
-			// if (count($items) == 2) {
-				// $err_message = 'You must complete both or neither of the First/Last Name';
-			// }
-			// else {
-				// $err_message = 'You must complete all or none of the First/Last Name and Email Address';
-			// }
-			// reset($items);
-			// $errors[key($items)] = $err_message;
-		// }
-        // return $errors;
-        // break;
-		
-// // *********************  Email Dependencies Validator  **************************
-// /* Implements a custom validation rule.
- // * Requires the following fields selected:  Email, Last Name of same Contact, Send Membership Documents, ditto,
- // *   and Membership Type Required.
- // * Error if Email and no Last Name, or Plain Membership and no Email.
- // */
-	  // case 'lalg_email_dependencies':
-	  
-// // dpm($items);
-// // dpm($components);		
-        // $errors = array();
-		// foreach ($items as $key => $val) {
-			// // Identify the fields of interest
-			// $formKey = $components[$key]['form_key'];
-			// if (endsWith($formKey, 'email')) {$email = $key;} 
-			// if (endsWith($formKey, 'name')) {$name = $key;}
-			// if (endsWith($formKey, 'membership_type_id')) {$membId = $key;}
-		// }	
-
- // // dpm('Email: ' . $email . 'Value: ' . $items[$email]);
-  
-		// if ($items[$email] && !$items[$name]) {
-			// // Email set but no Name
-			// $errors[$name] = 'Name is mandatory if Email field is set';
-		// }
-		// // if (!$items[$email] && $items[$name])  {
-			// // // Email field empty - check other dependencies	
-			// // if ($items[$membId] == '7') {
-				// // $errors[$email] = 'Membership without a Printed Newsletter requires an Email address';
-			// // }			
-		// // }
-
-		// // Return any errors		
-        // return $errors; 
-		// break;
-		
-	  // // ****************  Unique or Empty Validator  ***********************		
-      // case 'lalg_unique_or_empty':
-
-        // $errors = array();
-  
-		// // Count how many times each value appears, and find out which
-		// // values appear more than once.
-		// $items_count = array_count_values(array_map('drupal_strtolower', array_map('trim', $items)));
-        // $doubles = array_filter($items_count, function ($x) {
-          // return $x > 1;
-        // });
-        // foreach ($items as $key => $val) {
-          // if (isset($val) && !empty($val) && in_array(drupal_strtolower($val), array_keys($doubles))) {
-            // $errors[$key] = t('%item address %value must not be duplicated.', array('%item' => $components[$key]['name'], '%value' => $val));
-          // }
-        // }
-
-        // return $errors;
-        // break;
-    // }
-  // }
-// }
-
-// function endsWith($haystack, $needle)
-// {
-    // $length = strlen($needle);
-    // if ($length == 0) {
-        // return true;
-    // }
-    // return (substr($haystack, -$length) === $needle);
-// }
-
 //********************************************************************
 // Changes to Webforms - in addition to the standard configuration stuff
 //********************************************************************
@@ -225,7 +95,10 @@ function lalg_wf_utils_form_alter(&$form, &$form_state, $form_id) {
 // Extracts and formats the help text containing Membership types and prices
 function lalg_get_price_data() {
 	// Get all Active Membership Types
-	$result = civicrm_api4('MembershipType', 'get');
+	// Turn off Permissions checks
+	$result = civicrm_api4('MembershipType', 'get', [
+		'checkPermissions' => FALSE,
+	]);
 //dpm($result);
 
 	// Build the Help Text
