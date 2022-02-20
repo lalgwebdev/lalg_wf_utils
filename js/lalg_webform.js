@@ -5,6 +5,50 @@
 (function( $ ) {
 
 $(document).ready(function(){
+  
+  // ******************  Delete Additional Member   ************************************
+  
+    
+  $("fieldset.lalg-memb-delete-button .webform-custom-options-button").css({"background-color": "#888888", "color": "white", "font-size": "1.5em"});
+  $('summary').append("<span class=deleted-notice> </span>");
+  
+  $("input.lalg-memb-process-tag[value='18']").each(function() {
+    if ($(this).prop("checked") == true) {
+      $(this).parents("details").find(".webform-custom-options-button").css({"background-color": "#027089", "color": "white"});
+      $(this).parents("details").find(".webform-custom-options-button").text("Restore member");       
+      $(this).parents("details").find("input, select").prop('readonly', true);       
+      $(this).parents("details").find("input").css('-webkit-text-fill-color', 'gray');
+      $(this).parents("details").find("fieldset.lalg-memb-process-tag input.lalg-memb-process-tag[value='18']").prop('checked', true);      
+      $(this).parents("details").find(".deleted-notice").text('Deleted');   
+      $(this).parents("details").css('background-color', '#f8efef');    
+   } 
+  });
+  
+
+  
+  $(".webform-custom-options-button").click(function() {
+    
+    if($(this).parents("details").find("fieldset.lalg-memb-process-tag input.lalg-memb-process-tag[value='18']").prop("checked") == true){
+      $(this).css({"background-color": "#888888", "color": "white"});
+      $(this).text("Delete member"); 
+      $(this).parents("details").find("input, select").prop('readonly', false); 
+      $(this).parents("details").find("input").css('-webkit-text-fill-color', 'black');
+      $(this).parents("details").find("fieldset.lalg-memb-process-tag input.lalg-memb-process-tag[value='18']").prop('checked', false);    
+      $(this).parents("details").find(".deleted-notice").text('');    
+      $(this).parents("details").css('background-color', '#0f0f0f05');         
+    } else {
+      $(this).css({"background-color": "#027089", "color": "white"});
+      $(this).text("Restore member");       
+      $(this).parents("details").find("input, select").prop('readonly', true);       
+      $(this).parents("details").find("input").css('-webkit-text-fill-color', 'gray');
+      $(this).parents("details").find("fieldset.lalg-memb-process-tag input.lalg-memb-process-tag[value='18']").prop('checked', true);      
+      $(this).parents("details").find(".deleted-notice").text('Deleted');   
+      $(this).parents("details").css('background-color', '#f8efef');    
+    } 
+
+  });
+  
+  
 //console.log("Webform Loaded");
 	// Admin or User form
 	var isUserForm = $("form.lalg-memb-wf").hasClass("lalg-memb-userdetails");
@@ -35,6 +79,8 @@ $(document).ready(function(){
 	$("select.lalg-memb-membership-type").change(function(){ lalg_set_flags(); });
 	$("input.lalg-memb-membership-type").change(function(){ lalg_set_flags(); });	
 	$('input.lalg-memb-replace-tag').change(function(){ lalg_set_flags(); });
+  
+
 	
 // *****************  Function called on page load and on changing Membership Type Requested
 	function lalg_set_flags() {
