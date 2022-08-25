@@ -30,7 +30,7 @@ function lalg_wf_utils_form_alter(&$form, &$form_state, $form_id) {
 
 	// Add to form
 	if (isset($form['elements']['contact_pagebreak']['civicrm_2_contact_1_cg8_fieldset']['markup'])) {
-	  $form['elements']['contact_pagebreak']['civicrm_2_contact_1_cg8_fieldset']['markup']['#markup'] = $prices;
+	  $form['elements']['contact_pagebreak']['civicrm_2_contact_1_cg8_fieldset']['markup']['#markup'] .= $prices;
 	}
   }
   
@@ -102,7 +102,8 @@ function lalg_get_price_data() {
 //dpm($result);
 
 	// Build the Help Text
-	$prices = 'Membership Prices: </br>'; 
+//	$prices = 'Membership Prices: </br>'; 
+    $prices = '';
 	foreach ($result as $value) { 
 		// Exclude OTM, now that it is discontinued
 		if ( strpos($value['name'], 'Online') === false ) {

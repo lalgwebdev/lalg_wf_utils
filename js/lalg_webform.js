@@ -233,10 +233,14 @@ $(document).ready(function(){
 	}
 	
 //**********************  Default Household Name for new Contact  **************************	
-
+	// On Page Load
+	if(!$("input.lalg-memb-hhname").val() && $("input.lalg-memb-lastname").val()) {
+		$("input.lalg-memb-hhname").val($("input.lalg-memb-lastname").val() + ' Household');
+	}
+	// And on editing Last Name
 	$("input.lalg-memb-lastname").blur(function(){
 		if(!$("input.lalg-memb-hhname").val()) {
-console.log('Last Name: ' + $(this).val());			
+//console.log('Last Name: ' + $(this).val());			
 			$("input.lalg-memb-hhname").val($(this).val() + ' Household');
 		}
 	});	
