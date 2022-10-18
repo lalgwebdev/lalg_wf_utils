@@ -35,9 +35,9 @@ function lalg_wf_utils_form_alter(&$form, &$form_state, $form_id) {
   }
   
 //********************* Copy Postcode if HH not set yet *************************
+// dpm($form);
 // Usability, if User has registered with Postcode it then shows on Webform.
   if ($form['progress']['#current_page'] == 'contact_pagebreak' && $form['#webform_id'] == 'user_contact_details')  {	
-//  dpm($form);
 	// Get current Contact Id
 	$cid = CRM_Core_Session::singleton()->getLoggedInContactID();
 //	dpm($cid);
@@ -55,11 +55,11 @@ function lalg_wf_utils_form_alter(&$form, &$form_state, $form_id) {
 	
 	$postcode = "";
         if(isset($result[0]['postal_code'])) {
-	    $postcode = $result[0]['postal_code'];
+	    $postcode = strtoupper($result[0]['postal_code']);
         }
-//	dpm($postcode);
+// dpm($postcode);
 	// Set default value for HH Postcode
-	$form['elements']['contact_details']['civicrm_2_contact_1_fieldset_fieldset']['civicrm_2_contact_1_address_postal_code']['#default_value'] = $postcode;
+	$form['elements']['contact_pagebreak']['civicrm_2_contact_1_fieldset_fieldset']['civicrm_2_contact_1_address_postal_code']['#default_value'] = $postcode;
   }
   
 //********************  Add Test version of the Payment Processor for WatirUser (etc.) *******************//
