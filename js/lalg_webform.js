@@ -19,7 +19,7 @@ $(document).ready(function(){
       $(this).parents("details").find("input, select").prop('readonly', true);       
       $(this).parents("details").find("input").css('-webkit-text-fill-color', 'gray');
       $(this).parents("details").find("fieldset.lalg-memb-process-tag input.lalg-memb-process-tag[value='17']").prop('checked', true);      
-      $(this).parents("details").find(".deleted-notice").text('Deleted');   
+      $(this).parents("details").find(".deleted-notice").text('Queued for Deletion');   
       $(this).parents("details").css('background-color', '#f8efef');    
    } 
   });
@@ -42,7 +42,7 @@ $(document).ready(function(){
       $(this).parents("details").find("input, select").prop('readonly', true);       
       $(this).parents("details").find("input").css('-webkit-text-fill-color', 'gray');
       $(this).parents("details").find("fieldset.lalg-memb-process-tag input.lalg-memb-process-tag[value='17']").prop('checked', true);      
-      $(this).parents("details").find(".deleted-notice").text('Deleted');   
+      $(this).parents("details").find(".deleted-notice").text('Queued for Deletion');   
       $(this).parents("details").css('background-color', '#f8efef');    
     } 
 
