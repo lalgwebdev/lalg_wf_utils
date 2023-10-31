@@ -153,7 +153,7 @@ $(document).ready(function(){
 		// Else show flag
 		else { $("fieldset.lalg-memb-replace-tag-wrapper").show(); }
 
-		
+/*
 // ***************************  Set Email Preferences  *******************
 		// Set Information Emails flag if joining for the first time, or after lapsing.
 		if ( reqType && ( !existingType || membStatus.includes("Lapsed") )) {
@@ -163,7 +163,7 @@ $(document).ready(function(){
 		if (reqType == 7 && (!existingType || membStatus.includes("Lapsed") || existingType.includes("Printed"))) {
 			$("input.lalg-memb-emailoptions[data-civicrm-field-key$='contact_1_cg4_custom_9'][value=2]" ).prop('checked', true);
 		}		
-
+*/
 // ***************************  Set Latest Membership Action  ******************
 		// Default to New Joiner - covers the case when when Additional HH member added to existing HH. 
 		// Then overwrite as required
