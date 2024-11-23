@@ -3,22 +3,9 @@
 //
 // *******************  Revert to using $ for jQuery
 (function( $ ) {
-	  
+
 $(document).ready(function(){
-	
-   // prepopulate display name for existing members
-	
-   $(":input.lalg-webform-displayname").each(function() {
-	   var existingdisplayname = $(this);
-	   var firstname = $(this).parent().parent().find(":input.lalg-webform-firstname").val();
-	   var lastname = $(this).parent().parent().find(":input.lalg-webform-lastname").val();
-	   var firstlastnamechar = lastname.charAt(0);  
-	   var defaultdisplayname = firstname + " " + firstlastnamechar;
-	   if (!existingdisplayname.val().length) {
-		  existingdisplayname.val(defaultdisplayname);
-	   }
-   });   
-	
+
   
   // ******************  Delete Additional Member   ************************************
   
