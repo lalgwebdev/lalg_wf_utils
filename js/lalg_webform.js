@@ -181,7 +181,9 @@ $(document).ready(function(){
 // ***************************  Set Latest Membership Action  ******************
 		// Default to New Joiner - covers the case when when Additional HH member added to existing HH. 
 		// Then overwrite as required
-		$('input.lalg-memb-memact').val(1);
+		if(!$('input.lalg-memb-memact').val()) {
+			$('input.lalg-memb-memact').val(1);
+		}
 		
 		// If Replace Tag set then Action => Replace.  Can't be set at same time as Membership Requested
 		// Contact 1 on Page 1 contained in Fieldset
